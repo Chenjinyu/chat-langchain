@@ -15,8 +15,7 @@ data "google_secret_manager_secret_version" "chat_langchain_backend_secrets" {
 }
 
 module "chat_langchain_backend" {
-  source = "./modules/chat_langchain_backend"
-
+  source                      = "./modules/chat_langchain_backend"
   project_id                  = local.project_id
   region                      = local.region
   chat_langchain_backend_name = "chat-langchain-backend"

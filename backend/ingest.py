@@ -37,9 +37,9 @@ def metadata_extractor(
     return {
         "source": meta["loc"],
         "title": title,
-        "description": description_element.get("content", "")
-        if description_element
-        else "",
+        "description": (
+            description_element.get("content", "") if description_element else ""
+        ),
         "language": html_element.get("lang", "") if html_element else "",
         **meta,
     }
@@ -132,9 +132,19 @@ def ingest_docs():
             embedding=embedding,
             attributes=["source", "title"],
         )
+
+        # Pass engine_kwargs to apply SQLAlchemy configurations like pool_pre_ping
+        engine_kwargs = {
+            # This prevent the 'EOF detected' error by checking the connection health
+            "pool_pre_ping": True,
+            # This ensures a secure connection, which Supabase often requires
+            "connect_args": {"sslmode": "require"},
+        }
+
         record_manager = SQLRecordManager(
             f"weaviate/{WEAVIATE_GENERAL_GUIDES_AND_TUTORIALS_INDEX_NAME}",
             db_url=RECORD_MANAGER_DB_URL,
+            engine_kwargs=engine_kwargs,
         )
         record_manager.create_schema()
         general_guides_and_tutorials_docs = ingest_general_guides_and_tutorials()
